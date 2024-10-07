@@ -59,75 +59,79 @@
         <p>Copyright © 2024 Hospital Andrea Vida</p>
     </footer>
 
-<!-- Incluimos Firebase SDK -->
-<script type="module">
-  // Importar las funciones necesarias de Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-analytics.js";
-  import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js"; // Importamos Storage y las funciones necesarias
+    <!-- Incluimos Firebase SDK -->
+    <script type="module">
+        // Importar las funciones necesarias de Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-analytics.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js"; // Importamos getDownloadURL y listAll
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBwsHpkIZlzkOoWDqsLVs8gXfsvFFTWirw",
-    authDomain: "ejemplowebhospital.firebaseapp.com",
-    projectId: "ejemplowebhospital",
-    storageBucket: "ejemplowebhospital.appspot.com",
-    messagingSenderId: "801096387375",
-    appId: "1:801096387375:web:3e3595ed0a7bd465d86fda",
-    measurementId: "G-BXNZWC7KYM"
-  };
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwsHpkIZlzkOoWDqsLVs8gXfsvFFTWirw",
+            authDomain: "ejemplowebhospital.firebaseapp.com",
+            projectId: "ejemplowebhospital",
+            storageBucket: "ejemplowebhospital.appspot.com",
+            messagingSenderId: "801096387375",
+            appId: "1:801096387375:web:3e3595ed0a7bd465d86fda",
+            measurementId: "G-BXNZWC7KYM"
+        };
 
-  // Inicializar Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const storage = getStorage(app); // Inicializamos Firebase Storage
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const storage = getStorage(app); // Inicializamos Firebase Storage
 
-  // Función para subir archivos
-  function uploadFile() {
+// Función para subir archivos
+function uploadFile() {
     const file = document.getElementById('fileUpload').files[0];
     if (!file) {
         document.getElementById('statusMessage').textContent = "Por favor, selecciona un archivo PDF.";
         return;
     }
 
-    const storageRef = ref(storage, 'pdfs/' + file.name); // Crear referencia al archivo en Storage
-    const uploadTask = uploadBytes(storageRef, file); // Subir el archivo
+    // Crear referencia al archivo en Storage
+    const storageRef = ref(storage, 'pdfs/' + file.name); 
+
+    // Subir el archivo
+    const uploadTask = uploadBytes(storageRef, file); 
 
     // Monitorización de la subida
     uploadTask.then((snapshot) => {
         document.getElementById('statusMessage').textContent = 'Archivo subido con éxito.';
         listFiles(); // Actualizamos la lista de archivos subidos después de subir el nuevo
     }).catch((error) => {
+        // Mejorar manejo de errores
+        console.error('Error al subir el archivo:', error); // Ver en la consola
         document.getElementById('statusMessage').textContent = 'Error al subir el archivo: ' + error.message;
     });
-  }
+}
 
-  // Función para listar archivos subidos
-  function listFiles() {
-    const fileList = document.getElementById('fileList');
-    fileList.innerHTML = ''; // Limpiar la lista de archivos
 
-    const storageRef = ref(storage, 'pdfs/'); // Referencia al directorio de pdfs
-    // Listar archivos en el storage
-    listAll(storageRef).then((result) => {
-        result.items.forEach((fileRef) => {
-            getDownloadURL(fileRef).then((url) => {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = url;
-                a.textContent = fileRef.name;
-                a.target = '_blank';
-                li.appendChild(a);
-                fileList.appendChild(li);
+        // Función para listar archivos subidos
+        function listFiles() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = ''; // Limpiar la lista de archivos
+
+            const storageRef = ref(storage, 'pdfs/'); // Referencia al directorio de pdfs
+            // Listar archivos en el storage
+            listAll(storageRef).then((result) => {
+                result.items.forEach((fileRef) => {
+                    getDownloadURL(fileRef).then((url) => {
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.textContent = fileRef.name;
+                        a.target = '_blank';
+                        li.appendChild(a);
+                        fileList.appendChild(li);
+                    });
+                });
             });
-        });
-    });
-  }
+        }
 
-  // Llamar a listFiles() al cargar la página
-  window.onload = listFiles;
-</script>
-
-
+        // Llamar a listFiles() al cargar la página
+        window.onload = listFiles;
+    </script>
 </body>
 </html>
