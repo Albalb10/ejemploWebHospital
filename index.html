@@ -59,82 +59,75 @@
         <p>Copyright © 2024 Hospital Andrea Vida</p>
     </footer>
 
-    <!-- Incluimos Firebase SDK -->
+<!-- Incluimos Firebase SDK -->
 <script type="module">
-  // Import the functions you need from the SDKs you need
+  // Importar las funciones necesarias de Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js"; // Importamos Storage y las funciones necesarias
 
   // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBwsHpkIZlzkOoWDqsLVs8gXfsvFFTWirw",
-  authDomain: "ejemplowebhospital.firebaseapp.com",
-  projectId: "ejemplowebhospital",
-  storageBucket: "ejemplowebhospital.appspot.com",
-  messagingSenderId: "801096387375",
-  appId: "1:801096387375:web:3e3595ed0a7bd465d86fda",
-  measurementId: "G-BXNZWC7KYM"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyBwsHpkIZlzkOoWDqsLVs8gXfsvFFTWirw",
+    authDomain: "ejemplowebhospital.firebaseapp.com",
+    projectId: "ejemplowebhospital",
+    storageBucket: "ejemplowebhospital.appspot.com",
+    messagingSenderId: "801096387375",
+    appId: "1:801096387375:web:3e3595ed0a7bd465d86fda",
+    measurementId: "G-BXNZWC7KYM"
+  };
 
-  // Initialize Firebase
+  // Inicializar Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
+  const storage = getStorage(app); // Inicializamos Firebase Storage
+
+  // Función para subir archivos
+  function uploadFile() {
+    const file = document.getElementById('fileUpload').files[0];
+    if (!file) {
+        document.getElementById('statusMessage').textContent = "Por favor, selecciona un archivo PDF.";
+        return;
+    }
+
+    const storageRef = ref(storage, 'pdfs/' + file.name); // Crear referencia al archivo en Storage
+    const uploadTask = uploadBytes(storageRef, file); // Subir el archivo
+
+    // Monitorización de la subida
+    uploadTask.then((snapshot) => {
+        document.getElementById('statusMessage').textContent = 'Archivo subido con éxito.';
+        listFiles(); // Actualizamos la lista de archivos subidos después de subir el nuevo
+    }).catch((error) => {
+        document.getElementById('statusMessage').textContent = 'Error al subir el archivo: ' + error.message;
+    });
+  }
+
+  // Función para listar archivos subidos
+  function listFiles() {
+    const fileList = document.getElementById('fileList');
+    fileList.innerHTML = ''; // Limpiar la lista de archivos
+
+    const storageRef = ref(storage, 'pdfs/'); // Referencia al directorio de pdfs
+    // Listar archivos en el storage
+    listAll(storageRef).then((result) => {
+        result.items.forEach((fileRef) => {
+            getDownloadURL(fileRef).then((url) => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = url;
+                a.textContent = fileRef.name;
+                a.target = '_blank';
+                li.appendChild(a);
+                fileList.appendChild(li);
+            });
+        });
+    });
+  }
+
+  // Llamar a listFiles() al cargar la página
+  window.onload = listFiles;
 </script>
 
-        // Función para subir archivos
-        function uploadFile() {
-            const file = document.getElementById('fileUpload').files[0];
-            if (!file) {
-                document.getElementById('statusMessage').textContent = "Por favor, selecciona un archivo PDF.";
-                return;
-            }
-
-            const storageRef = firebase.storage().ref('pdfs/' + file.name);
-            const uploadTask = storageRef.put(file);
-
-            // Monitorización de la subida
-            uploadTask.on('state_changed', 
-                function progress(snapshot) {
-                    const percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    document.getElementById('statusMessage').textContent = 'Subiendo: ' + percentage.toFixed(2) + '%';
-                }, 
-                function error(err) {
-                    document.getElementById('statusMessage').textContent = 'Error al subir el archivo: ' + err.message;
-                }, 
-                function complete() {
-                    document.getElementById('statusMessage').textContent = 'Archivo subido con éxito.';
-                    listFiles(); // Actualizamos la lista de archivos subidos después de subir el nuevo
-                }
-            );
-        }
-
-        // Función para listar archivos subidos
-        function listFiles() {
-            const fileList = document.getElementById('fileList');
-            fileList.innerHTML = ''; // Limpiar la lista de archivos
-
-            const storageRef = firebase.storage().ref('pdfs/');
-            storageRef.listAll().then((result) => {
-                result.items.forEach((fileRef) => {
-                    fileRef.getDownloadURL().then((url) => {
-                        const li = document.createElement('li');
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.textContent = fileRef.name;
-                        a.target = '_blank';
-                        li.appendChild(a);
-                        fileList.appendChild(li);
-                    });
-                });
-            });
-        }
-
-        // Llamamos a listFiles() al cargar la página para mostrar los archivos subidosa
-        window.onload = listFiles;
-    </script>
 
 </body>
 </html>
