@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Andrea Vida </title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Hospital Andrea Vida</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#documentos">Subir Documentos</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="inicio">
+        <h2>Bienvenido a Hospital de la Dra. Andrea Vida </h2>
+        <p>Proveemos atención médica de alta calidad para ti y tu familia.</p>
+    </section>
+
+    <section id="servicios">
+        <h2>Servicios</h2>
+        <ul>
+            <li>Urgencias</li>
+            <li>Consultas Médicas</li>
+            <li>Laboratorios</li>
+            <li>Radiología</li>
+        </ul>
+    </section>
+
+    <section id="documentos">
+        <h2>Subir Documentos Médicos</h2>
+        <p>Por favor, suba sus documentos médicos en formato PDF.</p>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <label for="fileUpload">Selecciona el archivo PDF:</label>
+            <input type="file" id="fileUpload" accept="application/pdf">
+            <button type="button" onclick="uploadFile()">Subir Documento</button>
+            <div id="statusMessage"></div>
+        </form>
+    </section>
+
+    <section id="contacto">
+        <h2>Contacto</h2>
+        <p>Teléfono: +34 777 777 777</p>
+        <p>Email: contactoAndrea@hospitalAndreavida.com</p>
+    </section>
+
+    <footer>
+        <p>Copyright © 2024 Hospital Andrea Vida</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
