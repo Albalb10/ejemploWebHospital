@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Andrea Vida </title>
+    <title>Hospital Andrea Vida</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -42,7 +42,7 @@
         <form id="uploadForm" enctype="multipart/form-data">
             <label for="fileUpload">Selecciona el archivo PDF:</label>
             <input type="file" id="fileUpload" accept="application/pdf">
-            <button type="button" onclick="uploadFile()">Subir Documento</button>
+            <button type="button" onclick="window.uploadFile()">Subir Documento</button>
             <div id="statusMessage"></div>
         </form>
         <h3>Documentos subidos:</h3>
@@ -61,77 +61,73 @@
 
     <!-- Incluimos Firebase SDK -->
     <script type="module">
-        // Importar las funciones necesarias de Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-analytics.js";
-        import { getStorage, ref, uploadBytes, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js"; // Asegúrate de incluir listAll y getDownloadURL
+      // Importar las funciones necesarias de Firebase
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-analytics.js";
+      import { getStorage, ref, uploadBytes, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBwsHpkIZlzkOoWDqsLVs8gXfsvFFTWirw",
-            authDomain: "ejemplowebhospital.firebaseapp.com",
-            projectId: "ejemplowebhospital",
-            storageBucket: "ejemplowebhospital.appspot.com",
-            messagingSenderId: "801096387375",
-            appId: "1:801096387375:web:3e3595ed0a7bd465d86fda",
-            measurementId: "G-BXNZWC7KYM"
-        };
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyBwsHpkIZlzkOoWDqsLVs8gXfsvFFTWirw",
+        authDomain: "ejemplowebhospital.firebaseapp.com",
+        projectId: "ejemplowebhospital",
+        storageBucket: "ejemplowebhospital.appspot.com",
+        messagingSenderId: "801096387375",
+        appId: "1:801096387375:web:3e3595ed0a7bd465d86fda",
+        measurementId: "G-BXNZWC7KYM"
+      };
 
-        // Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const storage = getStorage(app); // Inicializamos Firebase Storage
+      // Inicializar Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const storage = getStorage(app); // Inicializamos Firebase Storage
 
-// Función para subir archivos
-function uploadFile() {
-    const file = document.getElementById('fileUpload').files[0];
-    if (!file) {
-        document.getElementById('statusMessage').textContent = "Por favor, selecciona un archivo PDF.";
-        return;
-    }
-
-    // Crear referencia al archivo en Storage
-    const storageRef = ref(storage, 'pdfs/' + file.name); 
-
-    // Subir el archivo
-    const uploadTask = uploadBytes(storageRef, file); 
-
-    // Monitorización de la subida
-    uploadTask.then((snapshot) => {
-        document.getElementById('statusMessage').textContent = 'Archivo subido con éxito.';
-        listFiles(); // Actualizamos la lista de archivos subidos después de subir el nuevo
-    }).catch((error) => {
-        // Mejorar manejo de errores
-        console.error('Error al subir el archivo:', error); // Ver en la consola
-        document.getElementById('statusMessage').textContent = 'Error al subir el archivo: ' + error.message;
-    });
-}
-
-
-        // Función para listar archivos subidos
-        function listFiles() {
-            const fileList = document.getElementById('fileList');
-            fileList.innerHTML = ''; // Limpiar la lista de archivos
-
-            const storageRef = ref(storage, 'pdfs/'); // Referencia al directorio de pdfs
-            // Listar archivos en el storage
-            listAll(storageRef).then((result) => {
-                result.items.forEach((fileRef) => {
-                    getDownloadURL(fileRef).then((url) => {
-                        const li = document.createElement('li');
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.textContent = fileRef.name;
-                        a.target = '_blank';
-                        li.appendChild(a);
-                        fileList.appendChild(li);
-                    });
-                });
-            });
+      // Función para subir archivos
+      window.uploadFile = function uploadFile() { // Define la función en el contexto global
+        const file = document.getElementById('fileUpload').files[0];
+        if (!file) {
+            document.getElementById('statusMessage').textContent = "Por favor, selecciona un archivo PDF.";
+            return;
         }
 
-        // Llamar a listFiles() al cargar la página
-        window.onload = listFiles;
+        const storageRef = ref(storage, 'pdfs/' + file.name); // Crear referencia al archivo en Storage
+        const uploadTask = uploadBytes(storageRef, file); // Subir el archivo
+
+        // Monitorización de la subida
+        uploadTask.then((snapshot) => {
+            document.getElementById('statusMessage').textContent = 'Archivo subido con éxito.';
+            listFiles(); // Actualizamos la lista de archivos subidos después de subir el nuevo
+        }).catch((error) => {
+            document.getElementById('statusMessage').textContent = 'Error al subir el archivo: ' + error.message;
+        });
+      };
+
+      // Función para listar archivos subidos
+      function listFiles() {
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = ''; // Limpiar la lista de archivos
+
+        const storageRef = ref(storage, 'pdfs/'); // Referencia al directorio de pdfs
+        // Listar archivos en el storage
+        listAll(storageRef).then((result) => {
+            result.items.forEach((fileRef) => {
+                getDownloadURL(fileRef).then((url) => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.textContent = fileRef.name;
+                    a.target = '_blank';
+                    li.appendChild(a);
+                    fileList.appendChild(li);
+                });
+            });
+        }).catch((error) => {
+            console.error('Error al listar archivos:', error);
+        });
+      }
+
+      // Llamar a listFiles() al cargar la página
+      window.onload = listFiles;
     </script>
 </body>
 </html>
